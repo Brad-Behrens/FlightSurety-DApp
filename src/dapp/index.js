@@ -1,4 +1,3 @@
-
 import DOM from './dom';
 import Contract from './contract';
 import './flightsurety.css';
@@ -15,7 +14,6 @@ import './flightsurety.css';
             console.log(error,result);
             display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
         });
-    
 
         // User-submitted transaction
         DOM.elid('submit-oracle').addEventListener('click', () => {
@@ -26,7 +24,21 @@ import './flightsurety.css';
             });
         })
 
+        // User-submitted transaction
+        DOM.elid('buy-insurance').addEventListener('click', () => {
+            let flightSelection = document.getElementById("flight-number");
+            let flight = flightSelection.options[flightSelection.selectedIndex].value;
+            let insuranceValue = DOM.elid('insurance-value').value;
+            contract.purchaseFlightInsurance();
+        })
+
+        // User-submitted transaction
+        DOM.elid('withdraw-credits').addEventListener('click', () => {
+            contract.withdraw();
+        })
     });
+    
+
 })();
 
 
@@ -44,10 +56,3 @@ function display(title, description, results) {
     displayDiv.append(section);
 
 }
-
-
-
-
-
-
-

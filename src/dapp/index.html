@@ -23,84 +23,33 @@
 
         <div id="display-wrapper" class="top-20">
         </div>
-        <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number"> <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
-        </div>
 
-        <!-- Register Airline -->
-        <div id="display-wrapper" class="top-20">
-        </div>
-        <h3>Register Airline</h3>
         <div class="row top-20">
-            <select id="dropDownAirlines_register">                
-                <option value="airline_1">0xf17f52151EbEF6C7334FAD080c5704D77216b732</option>
-                <option value="airline_2">0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef</option>
-                <option value="airline_3">0x821aEa9a577a9b44299B9c15c88cf3087F3b5544</option>
-                <option value="airline_3">0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2</option>
+            <label class="form">Select Flight:</label>
+            <select id="dropdown_flight">
+                <option value="flight1">London</option>
+                <option value="flight2">Paris</option>
+                <option value="flight3">Singapore</option>
             </select>
-            <btn class="btn btn-primary" id="registerAirline">Register</btn>
+        </div>
+        <hr />
+
+        <div class="row top-20">
+            <label class="form">Purchase Flight Insurance:</label>
+            <input type="text" id="insuranceValue" value="1">
+            <btn class="btn-primary" id="purchaseFlightInsurance">Purchase Insurance</btn>
         </div>
 
-        <!-- Fund Airline -->
-        <div id="display-wrapper" class="top-20">
-        </div>
-        <h3>Fund Airline</h3>
         <div class="row top-20">
-            <select id="dropDownAirlines_fund">                
-                <option value="airline_1">0xf17f52151EbEF6C7334FAD080c5704D77216b732</option>
-                <option value="airline_2">0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef</option>
-                <option value="airline_3">0x821aEa9a577a9b44299B9c15c88cf3087F3b5544</option>
-                <option value="airline_3">0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2</option>
-            </select>
-            <input type="text" id="fundValue" value="10"> <btn class="btn btn-primary" id="fundAirline">Fund Airline</btn>
+            <label class="form">Withdraw Credited Insurance:</label>
+            <btn class="btn btn-primary" id="withdrawInsurance">Withdraw Credits</btn>
         </div>
 
-        <!-- Register Flight -->
-        <div id="display-wrapper" class="top-20">
-        </div>
-        <h3>Register Flight</h3>
         <div class="row top-20">
-            <select id="dropDownFlights_register">                
-                <option value="flight_1">London</option>
-                <option value="flight_2">Paris</option>
-                <option value="flight_3">Singapore</option>
-            </select>
-            <btn class="btn btn-primary" id="registerFlight">Register</btn>
+            <label class="form">Fetch Flight Status:</label>
+            <btn class="btn btn-primary" id="submit-oracle">Flight Status</btn>
         </div>
 
-        <!-- Purchase Insurance -->
-        <div id="display-wrapper" class="top-20">
-        </div>
-        <h3>Purchase Flight Insurance</h3>
-        <div class="row top-20">
-            <select id="dropDownFlights_buyInsurance">                
-                    <option value="flight_1">London</option>
-                    <option value="flight_2">Paris</option>
-                    <option value="flight_3">Singapore</option>
-            </select>
-            <input type="text" id="insuranceValue" value=".5"> <btn class="btn btn-primary" id="buyInsurance">Buy Insurance</btn>                
-        </div>
-
-        <!-- Flight Status -->
-        <div id="display-wrapper" class="top-20">
-        </div>
-        <h3>Update Flight Status</h3>
-        <div class="row top-20">
-            <select id="dropDownFlights_fetchFlight">                
-                    <option value="flight_1">London</option>
-                    <option value="flight_2">Paris</option>
-                    <option value="flight_3">Singapore</option>
-            </select>  
-            <btn class="btn btn-primary" id="fetchFlightStatus">Fetch Flight Status</btn>
-        </div>
-
-        <!-- Passenger Balance -->
-        <div id="display-wrapper" class="top-20">
-        </div>
-        <h3>Passenger Balance</h3>
-        <div class="row top-20">
-            <label class="form">Show Balance</label> <btn class="btn btn-primary" id="showUserBalance">Show Balance</btn>
-        </div>
     </main>
 
 </body>

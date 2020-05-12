@@ -12,25 +12,36 @@ contract FlightSuretyData {
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
 
-    // Mapping for authorized callers.
-    mapping(address => bool) private authorizedCallers;
 
-    // Airline Datastructures.
+    // Airline Datastructures
     struct Airline {
         bool isRegistered;
         bool isFunded;
     }
 
     mapping(address => Airline) private airlines;
+    uint256 public airlineCount;
 
-    // Insurance datastructures.
-    struct FlightInsurance {
-        address passenger;
-        uint256 value;
+    // Flight Datastructures
+    struct Flight {
+        bool isRegistered;
+        uint8 statusCode;
+        uint256 updatedTimestamp;
+        address airline;
     }
 
-    mapping(bytes32 => FlightInsurance) flightInsurances;
-    mapping(address => uint256) private passengerBalances;
+    mapping(bytes32 => Flight) private flights;
+
+    // Insurance Datastructures
+    struct FlightInsurance {
+        address insuree;
+        uint256 amount;
+        bool purchased;
+        bool creditied;
+    }
+
+    mapping(bytes32 => FlightInsurance) private passengerInsurances;
+    mapping(address => uint256) private credits;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -48,11 +59,13 @@ contract FlightSuretyData {
                                 public
     {
         contractOwner = msg.sender;
-        // Instantiate first airline.
+        // Instantiate first Airline
         airlines[firstAirline] = Airline({
             isRegistered: true,
             isFunded: false
         });
+        // Instantiate Airline count
+        airlineCount = 1;
     }
 
     /********************************************************************************************/
@@ -64,10 +77,10 @@ contract FlightSuretyData {
 
     /**
     * @dev Modifier that requires the "operational" boolean variable to be "true"
-    *      This is used on all state changing functions to pause the contract in
+    *      This is used on all state changing functions to pause the contract in 
     *      the event there is an issue that needs to be fixed
     */
-    modifier requireIsOperational()
+    modifier requireIsOperational() 
     {
         require(operational, "Contract is currently not operational");
         _;  // All modifiers require an "_" which indicates where the function body will be added
@@ -79,33 +92,6 @@ contract FlightSuretyData {
     modifier requireContractOwner()
     {
         require(msg.sender == contractOwner, "Caller is not contract owner");
-        _;
-    }
-
-    /**
-    *@dev Modifier that check if caller is authorized
-    */
-    modifier requireAuthorizedCaller(address caller)
-    {
-        require(authorizedCallers[caller], "Caller is not authorized");
-        _;
-    }
-
-    /**
-    *@dev Modifier that check if airline is registered.
-    */
-    modifier requireIsAirlineRegistered()
-    {
-        require(airlines[msg.sender].isRegistered, "Error: Airline is not registered.");
-        _;
-    }
-
-    /**
-    *@dev Modifier that check if caller is authorized
-    */
-    modifier requireIsAirlineFunded()
-    {
-        require(airlines[msg.sender].isFunded, "Error: Airline has not offered seed funding.");
         _;
     }
 
@@ -139,17 +125,11 @@ contract FlightSuretyData {
                             external
                             requireContractOwner
     {
-        // Fail fast for setting operating status.
-        require(operational != mode, "Error: Operating Status is already set to this mode.");
         operational = mode;
     }
 
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
-    /********************************************************************************************/
-
-    /********************************************************************************************/
-    /*                                     AIRLINE FUNCTIONS                                    */
     /********************************************************************************************/
 
    /**
@@ -172,44 +152,87 @@ contract FlightSuretyData {
             isRegistered: true,
             isFunded: false
         });
-        // Return true boolean is successful.
+        // Update Airline count.
+        airlineCount += 1;
+
         return airlines[newAirline].isRegistered;
     }
 
     /**
-    * @dev Airline has successfully offered funding.
+    * @dev Airline offers funding and can participate in contract functionality
+    *      Can only be called from FlightSuretyApp contract
     *
     */
     function fundAirline
                             (
-                                address airlineAddress
+                                address airline
                             )
                             external
                             requireIsOperational
     {
         // Set isFunded boolean to true.
-        airlines[airlineAddress].isFunded = true;
+        airlines[airline].isFunded = true;
     }
+
 
     /**
     * @dev Returns isRegistered boolean
     *
     */
-    function isAirlineRegistered(address airlineAddress) external view returns(bool) {
-        return airlines[airlineAddress].isRegistered;
+    function isAirlineRegistered(address airline) public view returns(bool) {
+        return airlines[airline].isRegistered;
     }
 
     /**
     * @dev Returns isFunded boolean
     *
     */
-    function isAirlineFunded(address airlineAddress) external view returns(bool) {
-        return airlines[airlineAddress].isFunded;
+    function isAirlineFunded(address airline) public view returns(bool) {
+        return airlines[airline].isFunded;
     }
 
-    /********************************************************************************************/
-    /*                                   PASSENGER FUNCTIONS                                    */
-    /********************************************************************************************/
+    /**
+    * @dev Returns integer value of airlineCount
+    *
+    */
+    function getAirlineCount() public view returns(uint256) {
+        return airlineCount;
+    }
+
+    /**
+    * @dev Register flight
+    *
+    */
+    function registerFlight
+                            (
+                                address airline,
+                                string flight,
+                                uint256 timestamp
+                            )
+                            external
+                            requireIsOperational
+    {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        // Verify flight has not already been registered.
+        require(!flights[flightKey].isRegistered, "Flight has already been registered.");
+        // Register flight.
+        flights[flightKey] = Flight({
+            isRegistered: true,
+            statusCode: 0,
+            updatedTimestamp: timestamp,
+            airline: airline
+        });
+    }
+
+    /**
+    * @dev Returns boolean isRegistered for a flight
+    *
+    */
+    function isFlightRegistered(address airline, string flight, uint256 timestamp) public view returns(bool) {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        return flights[flightKey].isRegistered;
+    }
+
 
    /**
     * @dev Buy insurance for a flight
@@ -217,18 +240,26 @@ contract FlightSuretyData {
     */
     function buy
                             (
-                                address passenger,
-                                bytes32 flightKey
+                                address airline,
+                                string flight,
+                                uint256 timestamp
                             )
                             external
                             payable
                             requireIsOperational
     {
-        // Create flight insurance.
-        flightInsurances[flightKey] = FlightInsurance({
-            passenger: msg.sender,
-            value: msg.value
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        passengerInsurances[flightKey] = FlightInsurance({
+            insuree: msg.sender,
+            amount: msg.value,
+            purchased: true,
+            creditied: false
         });
+    }
+
+    function isInsurancePurchased(address airline, string flight, uint256 timestamp) public view returns(bool) {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        return passengerInsurances[flightKey].purchased;
     }
 
     /**
@@ -236,21 +267,11 @@ contract FlightSuretyData {
     */
     function creditInsurees
                                 (
-                                    address passenger,
-                                    bytes32 flightKey
                                 )
                                 external
-                                payable
+                                pure
     {
-        // Obtain flight insurance balance.
-        uint256 passengerInsurance = flightInsurances[flightKey].value;
-        // Calculate return amount (1.5x)
-        uint256 returnAmount = passengerInsurance.mul(3).div(2);
-        // Credit passenger with new amount.
-        passengerBalances[passenger] = returnAmount;
     }
-
-    
     
 
     /**
@@ -259,16 +280,10 @@ contract FlightSuretyData {
     */
     function pay
                             (
-                                address passengerAddress
                             )
                             external
-                            payable
+                            pure
     {
-        // Payment Protection.
-        require(address(this).balance > passengerBalances[passengerAddress], "Error: Insufficient funds to refund passenger.");
-        uint256 prev = passengerBalances[passengerAddress];
-        passengerBalances[passengerAddress] = 0;
-        msg.sender.transfer(prev);
     }
 
    /**
@@ -310,4 +325,3 @@ contract FlightSuretyData {
 
 
 }
-
