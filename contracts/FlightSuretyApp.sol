@@ -230,7 +230,7 @@ contract FlightSuretyApp {
    /**
     * @dev Called after oracle has updated flight status
     *
-    */  
+    */
     function processFlightStatus
                                 (
                                     address airline,
@@ -242,8 +242,24 @@ contract FlightSuretyApp {
                                 requireIsOperational
     {
         if(statusCode == STATUS_CODE_LATE_AIRLINE) {
-            flightSuretyData.creditInsurees();
+            flightSuretyData.creditInsurees(airline, flight, timestamp);
         }
+    }
+
+    /**
+    * @dev Allows passenger to withdraw credits
+    *
+    */
+    function withdrawCredits
+                                (
+                                    address airline,
+                                    string memory flight,
+                                    uint256 timestamp
+                                )
+                                public
+                                requireIsOperational
+    {
+        flightSuretyData.withdraw(airline, flight, timestamp);
     }
 
 

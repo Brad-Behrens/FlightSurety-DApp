@@ -267,7 +267,4 @@ contract('Flight Surety Tests', async (accounts) => {
     const purchased = await config.flightSuretyData.isInsurancePurchased(config.firstAirline, flightNumber, timestamp);
     assert.equal(purchased, true, "Error: Payment should not have been accepted.");
   });
-
- 
-
 });

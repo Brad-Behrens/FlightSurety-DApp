@@ -54,8 +54,13 @@ export default class Contract {
             });
     }
 
-    buyInsurance(callback) {
+    buyInsurance(flight, insuranceValue, callback) {
         let self = this;
+        let payload = {
+            airline: self.firstAirline,
+            flight: flight
+        }
+        self.flightSuretyApp.methods.purchaseInsurance(payload.airline, payload.flight)
     }
 
     withdraw(callback) {

@@ -37,11 +37,10 @@ contract FlightSuretyData {
         address insuree;
         uint256 amount;
         bool purchased;
-        bool creditied;
+        bool credited;
     }
 
     mapping(bytes32 => FlightInsurance) private passengerInsurances;
-    mapping(address => uint256) private credits;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -253,10 +252,14 @@ contract FlightSuretyData {
             insuree: msg.sender,
             amount: msg.value,
             purchased: true,
-            creditied: false
+            credited: false
         });
     }
 
+    /**
+    * @dev Returns Insurance purchased boolean
+    *
+    */
     function isInsurancePurchased(address airline, string flight, uint256 timestamp) public view returns(bool) {
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
         return passengerInsurances[flightKey].purchased;
@@ -267,23 +270,48 @@ contract FlightSuretyData {
     */
     function creditInsurees
                                 (
+                                    address airline,
+                                    string flight,
+                                    uint256 timestamp
                                 )
                                 external
-                                pure
+                                requireIsOperational
     {
+        // Obtain purchased insurance amount
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        uint256 insuranceValue = passengerInsurances[flightKey].amount;
+
+        // Insurance policy
+        uint256 flightCredit = insuranceValue.mul(15).div(10);
+        passengerInsurances[flightKey].amount = flightCredit;
+        passengerInsurances[flightKey].credited = true;
     }
-    
+
+    function getCreditAmount(address airline, string flight, uint256 timestamp) public view returns(uint256) {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        return passengerInsurances[flightKey].amount;
+    }
 
     /**
      *  @dev Transfers eligible payout funds to insuree
      *
     */
-    function pay
+    function withdraw
                             (
+                                address airline,
+                                string flight, 
+                                uint256 timestamp
                             )
                             external
-                            pure
+                            requireIsOperational
     {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        uint256 passengerCredits = passengerInsurances[flightKey].amount;
+        // Verify credits have been awarded to passenger.
+        require(passengerCredits > 0, "Passenger has not been awarded credits for flight insurance.");
+        // Debit before Credit
+        passengerInsurances[flightKey].amount = 0;
+        msg.sender.transfer(passengerCredits);
     }
 
    /**
@@ -292,7 +320,7 @@ contract FlightSuretyData {
     *
     */   
     function fund
-                            (   
+                            (
                             )
                             public
                             payable

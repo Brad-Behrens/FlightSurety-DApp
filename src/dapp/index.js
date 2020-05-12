@@ -29,7 +29,9 @@ import './flightsurety.css';
             let flightSelection = document.getElementById("flight-number");
             let flight = flightSelection.options[flightSelection.selectedIndex].value;
             let insuranceValue = DOM.elid('insurance-value').value;
-            contract.purchaseFlightInsurance();
+            contract.purchaseInsurance(flight, insuranceValue, (error, result) => {
+                display('Passenger', 'Buy insurance', [ { label: 'Transaction', error: error, value: result} ]);
+            });
         })
 
         // User-submitted transaction
