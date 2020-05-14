@@ -48,8 +48,29 @@ web3.eth.getAccounts((error, accounts) => {
 flightSuretyApp.events.OracleRequest({
     fromBlock: 0
   }, function (error, event) {
-    if (error) console.log(error)
-    console.log(event)
+    if (error) {
+        console.log(error)
+    }
+
+    let randomStatusCode = Math.floor(Math.random() * 5) * 10;
+    let eventValue = event.returnValues;
+    let index = eventValue.index;
+    let airline = eventValue.airline;
+    let flight = eventValue.flight;
+    let timestamp = eventValue.timestamp;
+
+    console.log('Event: ', eventValue);
+
+    // Loop through Oracles array and determine correct index value.
+    Oracles.forEach((oracle) => {
+        if(Oracles.index.includes(index)) {
+            // Oracle Response
+            flightSuretyApp.methods.submitOracleResponse(index, airline, flight, timestamp,randomStatusCode)
+            .send({from: oracle.address, gas: 9999999}, (error, result) => {
+                console.log('Oracle Response from: ' + oracle.address + ' Status Code: ' + randomStatusCode );
+            });
+        }
+    });
 });
 
 
