@@ -12,8 +12,9 @@ let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddre
 let flightSuretyData = new web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
 
 // Oracles
-let ORACLE_COUNT = 20;
-let oracles = [];
+let ORACLE_OFFSET = 20;
+let ORACLE_COUNT = 40;
+let Oracles = [];
 
 // Status Codes
 const STATUS_CODE_UNKNOWN = 0;
@@ -22,22 +23,35 @@ const STATUS_CODE_LATE_AIRLINE = 20;
 const STATUS_CODE_LATE_WEATHER = 30;
 const STATUS_CODE_LATE_TECHNICAL = 40;
 const STATUS_CODE_LATE_OTHER = 50;
-
 const STATUS_CODES = [STATUS_CODE_UNKNOWN, STATUS_CODE_ON_TIME, STATUS_CODE_LATE_AIRLINE, STATUS_CODE_LATE_WEATHER, STATUS_CODE_LATE_TECHNICAL, STATUS_CODE_LATE_OTHER];
 
-web3.eth.getAccounts().then((accounts) => {
-
+// Register Oracles
+web3.eth.getAccounts((error, accounts) => {
+    // Loop through oracle count
+    for(let i = ORACLE_OFFSET; i < ORACLE_COUNT; i++) {
+        // Register Oracle
+        flightSuretyApp.methods.registerOracle()
+        .send({from: accounts[i], value: web3.utils.toWei("1", "ether"), gas: 9999999}, (error, result) => {
+            flightSuretyApp.methods.getMyIndexes().call({from: accounts[i]}, (error, result) => {
+                let oracle = {
+                    address: accounts[i],
+                    index: result
+                };
+                Oracles.push(oracle);
+                console.log("Oracle Registered at: ", oracle.address);
+            });
+        });
+    }
 });
 
-
+// Oracle Functionality
 flightSuretyApp.events.OracleRequest({
     fromBlock: 0
   }, function (error, event) {
     if (error) console.log(error)
-    else {
-
-    }
+    console.log(event)
 });
+
 
 const app = express();
 app.get('/api', (req, res) => {
