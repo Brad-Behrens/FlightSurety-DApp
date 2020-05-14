@@ -52,7 +52,7 @@ flightSuretyApp.events.OracleRequest({
         console.log(error)
     }
 
-    let randomStatusCode = Math.floor(Math.random() * 5) * 10;
+    let randomStatusCode = STATUS_CODES[Math.floor(Math.random() * STATUS_CODES.length)]
     let eventValue = event.returnValues;
     let index = eventValue.index;
     let airline = eventValue.airline;
