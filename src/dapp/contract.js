@@ -87,7 +87,7 @@ export default class Contract {
             }); 
     }
 
-    purchaseInsurance(flight, timestamp, insurancevalue, callback) {
+    purchaseInsurance(flight, timestamp, insuranceValue, callback) {
         let self = this;
         let payload = {
             airline: self.airlines[0],
