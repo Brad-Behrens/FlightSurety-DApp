@@ -216,13 +216,11 @@ contract FlightSuretyApp {
     function registerFlight
                                 (
                                     address airline,
-                                    string memory flightNumber,
+                                    string flightNumber,
                                     uint256 timestamp
                                 )
                                 public
                                 requireIsOperational
-                                requireIsAirlineRegistered(airline)
-                                requireIsAirlineFunded(airline)
     {
         flightSuretyData.registerFlight(airline, flightNumber, timestamp);
     }

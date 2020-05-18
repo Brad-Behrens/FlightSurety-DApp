@@ -212,8 +212,6 @@ contract FlightSuretyData {
                             requireIsOperational
     {
         bytes32 flightKey = getFlightKey(airline, flight, timestamp);
-        // Verify flight has not already been registered.
-        require(!flights[flightKey].isRegistered, "Flight has already been registered.");
         // Register flight.
         flights[flightKey] = Flight({
             isRegistered: true,

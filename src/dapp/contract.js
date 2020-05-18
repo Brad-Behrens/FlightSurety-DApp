@@ -1,4 +1,5 @@
 import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
+import FlightSuretyData from '../../build/contracts/FlightSuretyData.json';
 import Config from './config.json';
 import Web3 from 'web3';
 
@@ -7,6 +8,7 @@ export default class Contract {
 
         let config = Config[network];
         this.web3 = new Web3(new Web3.providers.HttpProvider(config.url));
+        this.flightSuretyData = new this.web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
         this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
         this.initialize(callback);
         this.owner = null;
@@ -15,23 +17,33 @@ export default class Contract {
     }
 
     initialize(callback) {
-        this.web3.eth.getAccounts((error, accts) => {
-           
-            this.owner = accts[0];
+        let self = this;
 
-            let counter = 1;
+        this.web3.eth.getAccounts( (error, accts) => {
             
-            while(this.airlines.length < 5) {
-                this.airlines.push(accts[counter++]);
-            }
+            try {
+                self.owner = accts[0];
+                console.log('Owner: ', self.owner);
 
-            while(this.passengers.length < 5) {
-                this.passengers.push(accts[counter++]);
-            }
+                let counter = 1;
+                
+                while(this.airlines.length < 5) {
+                    this.airlines.push(accts[counter++]);
+                }
+                console.log('Airlines: ', JSON.stringify(self.airlines));
 
-            callback();
+                while(this.passengers.length < 5) {
+                    this.passengers.push(accts[counter++]);
+                }
+                console.log('Passengers: ', JSON.stringify(self.passengers));
+
+                callback();
+            } catch (e) {
+                console.log(e);
+            }
         });
     }
+
 
     isOperational(callback) {
        let self = this;
@@ -54,18 +66,39 @@ export default class Contract {
             });
     }
 
-    buyInsurance(flight, insuranceValue, callback) {
+    fundAirline(callback) {
+        let self = this;
+        self.flightSuretyApp.methods
+            .fundAirline()
+            .send({from: self.airlines[0], value: this.web3.utils.toWei("10", "ether")}, callback)
+    }
+
+    registerFlight(flight, timestamp, callback) {
         let self = this;
         let payload = {
-            airline: self.firstAirline,
-            flight: flight
+            airline: self.airlines[0],
+            flight: flight,
+            timestamp: timestamp
         }
-        self.flightSuretyApp.methods.purchaseInsurance(payload.airline, payload.flight)
+        self.flightSuretyApp.methods
+            .registerFlight(payload.airline, payload.flight, payload.timestamp)
+            .send({from: self.owner, gas: 6721970}, (error, result) => {
+                callback(error, result);
+            }); 
     }
 
-    withdraw(callback) {
+    purchaseInsurance(flight, timestamp, insurancevalue, callback) {
         let self = this;
+        let payload = {
+            airline: self.airlines[0],
+            flight: flight,
+            timestamp: timestamp
+        }
+        let amount = this.web3.utils.toWei(insuranceValue.toString(), "ether");
+        self.flightSuretyApp.methods
+            .purchaseInsurance(payload.airline, payload.flight, payload.timestamp)
+            .send({from: self.owner, value: amount, gas: 6721970}, (error, result) => {
+                callback(error, result)
+            })
     }
-
-    
 }

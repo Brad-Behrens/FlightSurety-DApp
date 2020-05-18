@@ -54,7 +54,7 @@ flightSuretyApp.events.OracleRequest({
 
     let randomStatusCode = STATUS_CODES[Math.floor(Math.random() * STATUS_CODES.length)]
     let eventValue = event.returnValues;
-    let index = eventValue.index;
+    let reqIndex = eventValue.index;
     let airline = eventValue.airline;
     let flight = eventValue.flight;
     let timestamp = eventValue.timestamp;
@@ -63,9 +63,9 @@ flightSuretyApp.events.OracleRequest({
 
     // Loop through Oracles array and determine correct index value.
     Oracles.forEach((oracle) => {
-        if(Oracles.index.includes(index)) {
+        if(oracle.index == reqIndex) {
             // Oracle Response
-            flightSuretyApp.methods.submitOracleResponse(index, airline, flight, timestamp,randomStatusCode)
+            flightSuretyApp.methods.submitOracleResponse(reqIndex, airline, flight, timestamp,randomStatusCode)
             .send({from: oracle.address, gas: 9999999}, (error, result) => {
                 console.log('Oracle Response from: ' + oracle.address + ' Status Code: ' + randomStatusCode );
             });

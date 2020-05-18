@@ -25,6 +25,26 @@
         </div>
 
         <div class="row top-20">
+            <select id="registerFlights_dropdown">                
+                <option value="flight_1">London</option>
+                <option value="flight_2">Paris</option>
+                <option value="flight_3">Singapore</option>
+            </select>
+            <btn class="btn btn-primary" id="registerFlight">Register Flight</btn>
+        </div>
+
+        <div id="display-wrapper" class="top-20">
+        </div>
+
+        <hr />
+
+        <div class="row top-20">
+            <label class="form">Fund Airline</label>
+            <input type="text" id="fund_airline" value="10">
+            <btc class="btn btn-primary" id="fundAirline">Fund Airline</btc>
+        </div>
+
+        <div class="row top-20">
             <label class="form">Select Flight:</label>
             <select id="dropdown_flight">
                 <option value="flight1">London</option>
@@ -32,17 +52,11 @@
                 <option value="flight3">Singapore</option>
             </select>
         </div>
-        <hr />
 
         <div class="row top-20">
             <label class="form">Purchase Flight Insurance:</label>
             <input type="text" id="insuranceValue" value="1">
-            <btn class="btn-primary" id="purchaseFlightInsurance">Purchase Insurance</btn>
-        </div>
-
-        <div class="row top-20">
-            <label class="form">Withdraw Credited Insurance:</label>
-            <btn class="btn btn-primary" id="withdrawInsurance">Withdraw Credits</btn>
+            <btn class="btn-primary" id="purchase-insurance">Purchase Insurance</btn>
         </div>
 
         <div class="row top-20">
