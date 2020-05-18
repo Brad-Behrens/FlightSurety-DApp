@@ -237,7 +237,7 @@ contract('Flight Surety Tests', async (accounts) => {
     // ARRANGE
     const payment = Web3.utils.toWei('2', "ether");
     const timestamp = Math.floor(Date.now() / 1000);
-    const flightNumber = 'XTZ-184';
+    const flightNumber = 'London';
     // ACT
     try {
        await config.flightSuretyApp.purchaseInsurance(config.firstAirline, flightNumber, timestamp,
@@ -254,7 +254,7 @@ contract('Flight Surety Tests', async (accounts) => {
     // ARRANGE
     const payment = Web3.utils.toWei('1', "ether");
     const timestamp = Math.floor(Date.now() / 1000);
-    const flightNumber = 'XTZ-184';
+    const flightNumber = 'London';
     // ACT
     try {
        await config.flightSuretyApp.purchaseInsurance(config.firstAirline, flightNumber, timestamp,
